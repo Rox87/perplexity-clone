@@ -1,6 +1,5 @@
 from langchain_core.messages import SystemMessage
 from pydantic import BaseModel
-from langchain_ollama import ChatOllama
 from langchain_openai import ChatOpenAI
 from langgraph.graph import START, END, StateGraph
 from langgraph.types import Send
@@ -15,11 +14,11 @@ from utils import *
 from dotenv import load_dotenv
 load_dotenv()
 
-# llm = ChatOpenAI(model="gpt-4o")
+llm = ChatOpenAI(base_url="http://192.168.100.2:1234/v1",api_key="123",model="gemma-3-4b-it")
 # llm = ChatOllama(model="llama3.2:latest")
 # llm = ChatOllama(model="llama3.1:8b-instruct-q4_K_S")
-llm = ChatOllama(model="llama3.1:8b-instruct-q4_K_S")
-reasoning_llm = ChatOllama(model="deepseek-r1:8b")
+# llm = ChatOllama(model="llama3.1:8b-instruct-q4_K_S")
+reasoning_llm = ChatOpenAI(base_url="http://192.168.100.2:1234/v1",api_key="123",model="gemma-3-4b-it")#ChatOllama(model="gemma-3-4b-it")
 
 def build_first_queries(state: ReportState): 
     class QueryList(BaseModel):
@@ -124,9 +123,12 @@ if __name__ == "__main__":
                     st.write(output)
         # print(output)
         response = output["payload"]["result"][0][1]
-        think_str = response.split("</think>")[0]
-        final_response = response.split("</think>")[1]
-
+        try:
+            think_str = response.split("</think>")[0]
+            final_response = response.split("</think>")[1]
+        except:
+            think_str = ""
+            final_response = response
         with st.expander("🧠 Reflexão", expanded=False):
             st.write(think_str)
         st.write(final_response)
